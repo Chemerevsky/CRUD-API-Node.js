@@ -63,22 +63,17 @@ const handleGetRequest = (url) => {
 }
 
 const handlePostRequest = async (request) => {
-	try {
-		if (request.url === '/api/users') {
-			const body = await getRequestBody(request);
-			const validationResult = userService.validateUser(body);
-			if (!validationResult.isError) {
-				const newUser = userService.createUser(body);
-				return prepareResponseData(201, {}, JSON.stringify(newUser));
-			}
-
-			return prepareResponseData(400, {}, validationResult.errorMessage);
+	if (request.url === '/api/users') {
+		const body = await getRequestBody(request);
+		const validationResult = userService.validateUser(body);
+		if (!validationResult.isError) {
+			const newUser = userService.createUser(body);
+			return prepareResponseData(201, {}, JSON.stringify(newUser));
 		}
-		return sendNotFoundError(INVALID_REQUEST_ERROR_TEXT);
-	} catch (error) {
-		console.log(error);
-		return sendNotFoundError('Something went wrong. Please check request and it body');
+
+		return prepareResponseData(400, {}, validationResult.errorMessage);
 	}
+	return sendNotFoundError(INVALID_REQUEST_ERROR_TEXT);
 }
 
 const handlePutRequest = async (request, url) => {
@@ -148,7 +143,6 @@ const handleRequest = async (request) => {
 }
 
 const sendResponse = (responseDetails, response) => {
-	console.log(`statusCode ${responseDetails.statusCode}; headers ${responseDetails.headers}; data ${responseDetails.data}`);
 	response.writeHead(responseDetails.statusCode, responseDetails.headers);
 	if (responseDetails.data) {
 		response.write(responseDetails.data);
