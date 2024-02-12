@@ -13,6 +13,26 @@ const sendNotFoundError = (data) => {
 	return prepareResponseData(404, {}, data);
 }
 
+const getRequestBody = (request) => {
+	return new Promise((resolve, reject) => {
+		let body = [];
+
+		request.on('data', chunk => {
+			body.push(chunk);
+		});
+
+		request.on('end', () => {
+			try {
+				body = Buffer.concat(body).toString();
+				body = body ? JSON.parse(body) : {};
+				resolve(body);
+			} catch (error) {
+				reject(error);
+			}
+		});
+	});
+}
+
 const handleGetRequest = (url) => {
 	if (url === '/api/users') {
 		const data = userService.getAllUsers();
@@ -42,12 +62,33 @@ const handleGetRequest = (url) => {
 	return sendNotFoundError(INVALID_REQUEST_ERROR_TEXT);
 }
 
+const handlePostRequest = async (request) => {
+	try {
+		if (request.url === '/api/users') {
+			const body = await getRequestBody(request);
+			const validationResult = userService.validateUser(body);
+			if (!validationResult.isError) {
+				const newUser = userService.createUser(body);
+				return prepareResponseData(201, {}, JSON.stringify(newUser));
+			}
+
+			return prepareResponseData(400, {}, validationResult.errorMessage);
+		}
+		return sendNotFoundError(INVALID_REQUEST_ERROR_TEXT);
+	} catch (error) {
+		console.log(error);
+		return sendNotFoundError('Something went wrong. Please check request and it body');
+	}
+}
+
 const handleRequest = async (request) => {
 	const {method, url} = request;
 
 	switch (method) {
 		case 'GET':
 			return handleGetRequest(url);
+		case 'POST':
+			return handlePostRequest(request);
 		default:
 			return sendNotFoundError(INVALID_REQUEST_ERROR_TEXT);
 	}
