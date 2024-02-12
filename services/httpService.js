@@ -81,6 +81,28 @@ const handlePostRequest = async (request) => {
 	}
 }
 
+const handleDeleteRequest = (url) => {
+	const standardPath = '/api/users/';
+	if (url.startsWith(standardPath)) {
+		const userId = url.replace(standardPath, '');
+		const isValidId = userService.validateUserId(userId);
+		if (!isValidId) {
+			return prepareResponseData(400 , {}, 'Invalid user Id');
+		}
+
+		const user = userService.getUserById(userId);
+		if (!user) {
+			return sendNotFoundError(`User with id=${userId} does not exist`);
+		}
+
+		userService.deleteUser(userId);
+
+		return prepareResponseData(204 , {}, 'User was deleted');
+	}
+
+	return sendNotFoundError(INVALID_REQUEST_ERROR_TEXT);
+}
+
 const handleRequest = async (request) => {
 	const {method, url} = request;
 
@@ -89,6 +111,8 @@ const handleRequest = async (request) => {
 			return handleGetRequest(url);
 		case 'POST':
 			return handlePostRequest(request);
+		case 'DELETE':
+			return handleDeleteRequest(url);
 		default:
 			return sendNotFoundError(INVALID_REQUEST_ERROR_TEXT);
 	}

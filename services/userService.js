@@ -15,6 +15,11 @@ const getUserById = (userId) => {
 	return user;
 }
 
+const deleteUser = (userId) => {
+	const user = users.find((u, i) => u.id === userId);
+	users.splice(users.indexOf(user), 1);
+}
+
 const validateUser = (userData) => {
 	const user = userData.user;
 	if (!user) {
@@ -66,4 +71,4 @@ const createUser = (userData) => {
 	return newUser;
 }
 
-export { getAllUsers, validateUserId, getUserById, validateUser, createUser }
+export { getAllUsers, validateUserId, getUserById, validateUser, createUser, deleteUser }
