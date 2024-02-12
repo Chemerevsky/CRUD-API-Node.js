@@ -58,6 +58,44 @@ const validateUser = (userData) => {
 	};
 }
 
+const validateUserUpdate = (userData) => {
+	const user = userData.user;
+	if (!user) {
+		return {
+			isError: true,
+			errorMessage: 'Invalid body format'
+		}
+	}
+
+	const username = user.username;
+	if (username && typeof username !== 'string') {
+		return {
+			isError: true,
+			errorMessage: 'Please send correct username'
+		}
+	}
+
+	const age = user.age;
+	if (age && typeof age !== 'number') {
+		return {
+			isError: true,
+			errorMessage: 'Please send correct age'
+		}
+	}
+
+	const hobbies = user.hobbies;
+	if (hobbies && !Array.isArray(hobbies)) {
+		return {
+			isError: true,
+			errorMessage: 'Please send correct hobbies'
+		}
+	}
+
+	return {
+		isError: false
+	};
+}
+
 const createUser = (userData) => {
 	const {username, age, hobbies} = userData.user;
 	const newUser = {
@@ -71,4 +109,20 @@ const createUser = (userData) => {
 	return newUser;
 }
 
-export { getAllUsers, validateUserId, getUserById, validateUser, createUser, deleteUser }
+const updateUser = (userId, userData) => {
+	const {username, age, hobbies} = userData.user;
+	const user = getUserById(userId);
+	if (username) {
+		user.username = username;
+	}
+	if (age) {
+		user.age = age;
+	}
+	if (hobbies) {
+		user.hobbies = hobbies;
+	}
+
+	return user;
+}
+
+export { getAllUsers, validateUserId, getUserById, validateUser, createUser, deleteUser, validateUserUpdate, updateUser }
