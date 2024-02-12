@@ -5,7 +5,8 @@
   "main": "app.js",
   "type": "module",
   "scripts": {
-    "start": "node --env-file=.env app.js",
+    "start:dev": "nodemon --env-file=.env app.js",
+    "start:prod": "node app.js",
     "test": "test"
   },
   "repository": {
